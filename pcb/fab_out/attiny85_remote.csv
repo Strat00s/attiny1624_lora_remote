@@ -1,0 +1,13 @@
+"Id";"Designator";"Footprint";"Quantity";"Designation";"Supplier and ref";
+1;"J2";"SolderJumper-3_P1.3mm_Open_Pad1.0x1.5mm";1;"INT/DRV";;;
+2;"BT1";"BAT_BS-7";1;"Coincell_BAT_BS-7";;;
+3;"J3";"SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm";1;"PWR";;;
+4;"C2,C1";"C_Disc_D8.0mm_W2.5mm_P5.00mm";2;"1000uF";;;
+5;"Q1";"SSM3J35AFSLF";1;"SSM3J35AFS,LF";;;
+6;"U1";"Ai-Thinker-Ra-01-LoRa";1;"Ra-02";;;
+7;"SW1,SW3,SW2";"SW_PUSH_6mm";3;"F2";;;
+8;"D6,D3,D4,D5,D1";"D_DO-35_SOD27_P7.62mm_Horizontal";5;"D";;;
+9;"Attiny85";"QFN50P400X400X80-21N-D";1;"ATTINY85-20MU";;;
+10;"R2";"R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal";1;"100";;;
+11;"J1";"SolderJumper-3_P1.3mm_Open_Pad1.0x1.5mm";1;"RST/DRV";;;
+12;"R1";"R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal";1;"22k";;;

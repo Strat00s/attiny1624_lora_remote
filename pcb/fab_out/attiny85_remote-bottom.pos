@@ -1,0 +1,17 @@
+### Footprint positions - created on Tue Jul  4 16:49:38 2023 ###
+### Printed by KiCad version (7.0.0)
+## Unit = mm, Angle = deg.
+## Side : bottom
+# Ref     Val            Package                                                 PosX       PosY       Rot  Side
+Attiny85  ATTINY85-20MU  QFN50P400X400X80-21N-D                              191.1000   -54.9000   90.0000  bottom
+D1        D              D_DO-35_SOD27_P7.62mm_Horizontal                    187.3000   -63.8000    0.0000  bottom
+D3        D              D_DO-35_SOD27_P7.62mm_Horizontal                    180.6000   -63.9950   90.0000  bottom
+D4        D              D_DO-35_SOD27_P7.62mm_Horizontal                    180.6000   -46.6550  -90.0000  bottom
+D5        D              D_DO-35_SOD27_P7.62mm_Horizontal                    201.6000   -63.9950   90.0000  bottom
+D6        D              D_DO-35_SOD27_P7.62mm_Horizontal                    201.6000   -46.6550  -90.0000  bottom
+R1        22k            R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal   193.2750   -78.4400  -90.0000  bottom
+R2        100            R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal   188.8750   -85.7600   90.0000  bottom
+SW1       F2             SW_PUSH_6mm                                         201.6000   -73.0500   90.0000  bottom
+SW2       F2             SW_PUSH_6mm                                         180.6000   -66.5500  -90.0000  bottom
+SW3       F2             SW_PUSH_6mm                                         188.8500   -66.5500  -90.0000  bottom
+## End

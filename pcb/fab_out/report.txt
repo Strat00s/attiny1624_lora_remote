@@ -1,0 +1,6 @@
+Info: Front (top side) placement file: 'C:\Users\Stratos\Documents\0_projects\attiny85_lora_remote\pcb\fab_out\attiny85_remote-top.pos'.
+Info: Component count: 5.
+Info: Back (bottom side) placement file: 'C:\Users\Stratos\Documents\0_projects\attiny85_lora_remote\pcb\fab_out\attiny85_remote-bottom.pos'.
+Info: Component count: 11.
+Info: Full component count: 16.
+Info: File generation successful.
