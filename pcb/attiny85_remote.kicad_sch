@@ -1470,10 +1470,10 @@
     (property "Datasheet" "http://www.apem.com/int/index.php?controller=attachment&id_attachment=1371" (at 186.69 43.18 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 6f51950f-a191-47a4-a8e4-4be70375b13c))
-    (pin "1" (uuid 6f51950f-a191-47a4-a8e4-4be70375b13c))
-    (pin "2" (uuid 28b80b3c-0dc8-4cb8-9868-4585b98eb341))
-    (pin "2" (uuid 28b80b3c-0dc8-4cb8-9868-4585b98eb341))
+    (pin "1" (uuid 6f51950f-a191-47a4-a8e4-4be70375b13d))
+    (pin "1" (uuid 6f51950f-a191-47a4-a8e4-4be70375b13d))
+    (pin "2" (uuid 28b80b3c-0dc8-4cb8-9868-4585b98eb342))
+    (pin "2" (uuid 28b80b3c-0dc8-4cb8-9868-4585b98eb342))
     (instances
       (project "attiny85_remote"
         (path "/db7d5605-f896-494c-b27c-eb6bf0dfb607"
@@ -1904,10 +1904,10 @@
     (property "Datasheet" "http://www.apem.com/int/index.php?controller=attachment&id_attachment=1371" (at 186.69 31.75 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid c2a02327-ccbe-4aed-b555-3ea2384ec0b1))
-    (pin "1" (uuid c2a02327-ccbe-4aed-b555-3ea2384ec0b1))
-    (pin "2" (uuid 6708f681-fa94-428d-8bed-e485353c566e))
-    (pin "2" (uuid 6708f681-fa94-428d-8bed-e485353c566e))
+    (pin "1" (uuid c2a02327-ccbe-4aed-b555-3ea2384ec0b2))
+    (pin "1" (uuid c2a02327-ccbe-4aed-b555-3ea2384ec0b2))
+    (pin "2" (uuid 6708f681-fa94-428d-8bed-e485353c566f))
+    (pin "2" (uuid 6708f681-fa94-428d-8bed-e485353c566f))
     (instances
       (project "attiny85_remote"
         (path "/db7d5605-f896-494c-b27c-eb6bf0dfb607"
@@ -1932,10 +1932,10 @@
     (property "Datasheet" "http://www.apem.com/int/index.php?controller=attachment&id_attachment=1371" (at 186.69 54.61 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 0331b82f-35cb-4aff-b866-d4523bf0df90))
-    (pin "1" (uuid 0331b82f-35cb-4aff-b866-d4523bf0df90))
-    (pin "2" (uuid 4a4e1c54-d8f5-44e9-9229-b51adaad98d2))
-    (pin "2" (uuid 4a4e1c54-d8f5-44e9-9229-b51adaad98d2))
+    (pin "1" (uuid 0331b82f-35cb-4aff-b866-d4523bf0df91))
+    (pin "1" (uuid 0331b82f-35cb-4aff-b866-d4523bf0df91))
+    (pin "2" (uuid 4a4e1c54-d8f5-44e9-9229-b51adaad98d3))
+    (pin "2" (uuid 4a4e1c54-d8f5-44e9-9229-b51adaad98d3))
     (instances
       (project "attiny85_remote"
         (path "/db7d5605-f896-494c-b27c-eb6bf0dfb607"
