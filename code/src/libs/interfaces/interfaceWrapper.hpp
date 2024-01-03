@@ -5,9 +5,10 @@
 
 #define IW_TYPE_NONE      0
 #define IW_TYPE_MQTT      1
-#define IW_TYPE_LORA_137M 2
-#define IW_TYPE_LORA_434M 3
-#define IW_TYPE_LORA_868M 4
+#define IW_TYPE_SX127X    2
+//#define IW_TYPE_LORA_137M 2
+//#define IW_TYPE_LORA_434M 3
+//#define IW_TYPE_LORA_868M 4
 #define IW_TYPE_LORA_2_4G 5
 #define IW_TYPE_NRF24     6
 #define IW_TYPE_RF_443    7
@@ -33,6 +34,13 @@ public:
     }
 
     virtual uint8_t transmitData(uint8_t *data, uint8_t len) = 0;
+
+    /** @brief Get data from interface.
+     * 
+     * @param data Buffer for storing received data. Must be at least 256B long.
+     * @param len Length of received data.
+     * @return 0 on succes.
+     */
     virtual uint8_t getData(uint8_t *data, uint8_t *len) = 0;
     virtual uint8_t startReception() = 0;
     virtual uint8_t hasData() = 0;

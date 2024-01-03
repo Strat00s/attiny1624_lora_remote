@@ -4,13 +4,13 @@
 #include "libs/sx127x.hpp"
 
 
-class lora434InterfaceWrapper : public interfaceWrapper{
+class sx127xInterfaceWrapper : public interfaceWrapper{
 private:
     SX127X *lora;
 
 public:
 
-    lora434InterfaceWrapper(SX127X *lora) : interfaceWrapper(IW_TYPE_LORA_434M) {
+    sx127xInterfaceWrapper(SX127X *lora) : interfaceWrapper(IW_TYPE_SX127X) {
         this->lora = lora;
     }
 

@@ -11,7 +11,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <avr/wdt.h>
-#include "libs/interfaces/lora434InterfaceWrapper.hpp"
+#include "libs/interfaces/sx127xInterfaceWrapper.hpp"
 #include "libs/sx127x.hpp"
 #include "libs/tinyMesh.hpp"
 
@@ -45,23 +45,13 @@
 #define RESET() {Serial.println("reseting"); wdt_enable(WDTO_15MS); while (true);}
 
 
-TinyMesh tm(TM_TYPE_NODE);
+TinyMesh tm(TM_NODE_TYPE_LP_NODE);
 SX127X lora(CS, RST, DIO0);
-lora434InterfaceWrapper lora_if(&lora);
+sx127xInterfaceWrapper lora_if(&lora);
 packet_t packet;
 
 
-
-//SX127X callbacks
-uint8_t pinRead(uint8_t pin) {
-    return digitalRead(pin);
-}
-void __delay(uint32_t ms) {
-    delay(ms);
-}
-uint32_t __micros() {
-    return micros();
-}
+/*----(SX127X CALLBACKS)----*/
 void SPIBeginTransfer() {
     SPI.beginTransaction({14000000, MSBFIRST, SPI_MODE0});
 }
@@ -74,6 +64,7 @@ void SPITransfer(uint8_t addr, uint8_t *buffer, size_t length) {
 }
 
 
+/*----(HELPERS & OTHER)----*/
 void failed() {
     while(true) {
         digitalWrite(LED_B, HIGH);
@@ -89,21 +80,19 @@ void printPacket() {
     Serial.print("Version:             ");
     Serial.println(packet.fields.version);
     Serial.print("Device type:         ");
-    Serial.println(packet.fields.node_type);
+    Serial.println(packet.fields.flags.fields.node_type);
     Serial.print("Message id:          ");
-    Serial.println(tm.getMessageId(packet));
+    Serial.println(tm.getMessageId(&packet));
     Serial.print("Source address:      ");
-    Serial.println(packet.fields.src_addr);
+    Serial.println(packet.fields.source);
     Serial.print("Destination address: ");
-    Serial.println(packet.fields.dst_addr);
-    Serial.print("Port:                ");
-    Serial.println(packet.fields.port);
+    Serial.println(packet.fields.destination);
     Serial.print("Message type:        ");
-    Serial.println(packet.fields.msg_type);
+    Serial.println(packet.fields.flags.fields.message_type);
     Serial.print("Data length:         ");
-    Serial.println(packet.fields.data_len);
+    Serial.println(packet.fields.data_length);
     Serial.print("Data: ");
-    for (int i = 0; i < packet.fields.data_len; i++) {
+    for (int i = 0; i < packet.fields.data_length; i++) {
         Serial.print(packet.fields.data[i]);
         Serial.print(" ");
     }
@@ -111,46 +100,54 @@ void printPacket() {
 }
 
 
+/** @brief Handler for incoming packets (not used)
+ * 
+ */
+void handleIncomingAnswer() {
+    uint8_t msg_type = packet.fields.flags.fields.message_type;
+    if (msg_type == TM_MSG_OK) {
+        Serial.println("OK Answer");
+        return;
+    }
+
+    if (msg_type == TM_MSG_ERR) {
+        Serial.println("ERR Answer");
+        return;
+    }
+
+    if (msg_type == TM_MSG_CUSTOM) {
+        Serial.println("Custom Answer");
+        return;
+    }
+}
+
 /** @brief Send packet on our only interface and save it's ID
  * 
  * @return 0 on success, errors that occured during transmission
  */
-uint16_t sendPacketOnInterface() {
-    uint16_t ret = 0;
+uint8_t sendPacketOnInterface() {
+    uint8_t ret = 0;
 
-    //Serial.println("Sending packet:");
-    //printPacket();
-    //Serial.println("");
-
-    uint32_t packet_id = tm.createPacketID(packet);
-    ret = lora_if.transmitData(packet.raw, TM_HEADER_LENGTH + packet.fields.data_len);
-    //IF_X_TRUE(ret, "Failed to transmit data: ", return ret);
-    if(ret) return ret;
-
-    //IF_X_TRUE(tm.savePacketID(packet_id, millis()), "Failed to save packet: ", {});
-    tm.savePacketID(packet_id, millis());
+    uint32_t packet_id = tm.createPacketID(&packet);
+    ret = lora_if.transmitData(packet.raw, TM_HEADER_LENGTH + packet.fields.data_length);
+    if (ret) return ret;
+    tm.savePacketID(packet_id);
 
     return ret;
 }
-
 
 /** @brief Get data from interface and try to build a pakcet
  * 
  * @return 0 on success, lora or tm errors on failure
  */
-uint16_t getPacketOnInterface() {
-    uint16_t ret = 0;
-
-    //get data from lora
+uint8_t getPacketOnInterface() {
+    uint8_t ret = 0;
     uint8_t len;
     ret = lora_if.getData(packet.raw, &len);
-    //IF_X_TRUE(ret, "Failed to get data: ", return ret);
     if (ret) return ret;
 
     //check if packet is valid
-    ret = tm.checkHeader(packet);
-    //IF_X_TRUE(ret, "Incoming packet header bad: ", return ret);
-
+    ret = tm.checkHeader(&packet);
     return ret;
 }
 
@@ -166,22 +163,21 @@ uint16_t getPacketOnInterface() {
  * @param length Length of data
  * @return 
  */
-uint16_t requestAwaitAnswer(uint8_t tries, uint32_t timeout, uint8_t destination, uint8_t message_type, uint8_t port, uint8_t *buffer, uint8_t length) {
-    uint16_t ret = 0;
+uint8_t requestAwait(uint8_t retries, uint32_t timeout, uint8_t destination, uint8_t message_type, uint8_t *buffer, uint8_t length) {
+    uint8_t ret = 0;
 
-    for (int i = 0; i < tries; i++) {
-        ret = tm.buildPacket(&packet, destination, message_type, port, buffer, length);
-        //IF_X_TRUE(ret, "Failed to build packet: ", continue);
+    for (int i = 0; i < retries; i++) {
+        ret = tm.buildPacket(&packet, destination, tm.lcg(), message_type, buffer, length);
         if(ret) continue;
 
         ret = sendPacketOnInterface();
-        //IF_X_TRUE(ret, "Failed to send a packet: ", continue);
         if(ret) continue;
 
         //start reception on lora
         ret = lora_if.startReception();
-        //IF_X_TRUE(ret, "Failed to start reception: ", continue);
         if(ret) continue;
+
+        ret = 0xFF;
 
         //wait for response
         auto timer = millis();
@@ -189,33 +185,18 @@ uint16_t requestAwaitAnswer(uint8_t tries, uint32_t timeout, uint8_t destination
             //got some data
             if (digitalRead(DIO0)) {
                 ret = getPacketOnInterface();
-                //IF_X_TRUE(ret, "Failed to get valid packet on interface: ", continue);
                 if (ret) continue;
 
-                //printPacket();
-
-                //check if incoming packet is an answer or something else (that we don't care about)
-                ret = tm.checkPacket(packet);
-                //IF_X_TRUE(ret, "Incoming packet is not an answer: ", continue);
-                if (ret != TM_ERR_IN_DUPLICATE)
-                    tm.savePacket(packet, millis());
-                if (ret) continue;
-                //Serial.println("Got answer:");
-                //printPacket();
-                //Serial.println("");
-
-                //packet is an answer to our request
-                return ret;
+                ret = tm.checkPacket(&packet);
+                if (!(ret & TM_PACKET_RESPONSE)) continue;
+                return 0;
             }
-
-            //clear saved packets in the meantime
-            tm.clearSavedPackets(millis());
         }
 
         //Serial.println("timeout");
     }
 
-    return ret ? ret : 0xFF;
+    return ret;
 }
 
 
@@ -236,11 +217,11 @@ void setup() {
     SPI.begin();
 
     //LORA init
-    lora.registerMicros(__micros);
-    lora.registerDelay(__delay);
+    lora.registerMicros(micros);
+    lora.registerDelay(delay);
     lora.registerPinMode(pinMode, INPUT, OUTPUT);
-    lora.registerPinWrite(digitalWrite);
-    lora.registerPinRead(pinRead);
+    lora.registerDigitalWrite(digitalWrite);
+    lora.registerDigitalRead(digitalRead);
     lora.registerSPIBeginTransfer(SPIBeginTransfer);
     lora.registerSPIEndTransfer(SPIEndTransfer);
     lora.registerSPITransfer(SPITransfer);
@@ -251,28 +232,19 @@ void setup() {
 
     //TinyMesh init
     tm.setSeed(46290);
-    tm.addPort(BTN1_PORT);
-    tm.addPort(BTN2_PORT);
-    tm.addPort(BTN3_PORT);
     tm.setAddress(23);
+    tm.registerMillis(millis);
 
     //1. register
     digitalWrite(LED_B, HIGH);
-    ret = requestAwaitAnswer(3, TM_TIME_TO_STALE, tm.getGatewayAddress(), TM_MSG_REGISTER, 0, nullptr, 0);
-    //IF_X_TRUE(ret, "Failed to register: ", failed());
+    ret = requestAwait(3, TM_CLEAR_TIME, tm.getGatewayAddress(), TM_MSG_REGISTER, nullptr, 0);
     if (ret) failed();
     digitalWrite(LED_B, LOW);
 
     //save data from registration (our address is premade)
-    tm.clearSavedPackets(millis());
-    tm.setGatewayAddress(packet.fields.src_addr);
+    tm.clearSentQueue();
+    tm.setGatewayAddress(packet.fields.source);
 
-    //2. tell gateway our ports
-    uint8_t buf[3] = {BTN1_PORT, BTN2_PORT, BTN3_PORT};
-    digitalWrite(LED_R, HIGH);
-    ret = requestAwaitAnswer(3, TM_TIME_TO_STALE, tm.getGatewayAddress(), TM_MSG_PORT_ANOUNCEMENT, 0, buf, 3);
-    //IF_X_TRUE(ret, "Failed to send port anouncement: ", failed());
-    if(ret) failed();
     digitalWrite(LED_R, LOW);
 }
 
@@ -281,6 +253,7 @@ bool pressed = false;
 uint16_t ret = 0;
 void loop() {
 
+    //wake up
     //our service request routine
     if ((digitalRead(BTN1) || digitalRead(BTN2) || digitalRead(BTN3)) && !pressed) {
         pressed = true;
@@ -288,15 +261,19 @@ void loop() {
         digitalWrite(LED_R, HIGH);
 
         //send custom empty message on specified button port to address 46
-        if (digitalRead(BTN1))
-            ret = requestAwaitAnswer(1, TM_TIME_TO_STALE, 46, TM_MSG_CUSTOM, BTN1_PORT, nullptr, 0);
+        if (digitalRead(BTN1)) {
+            uint8_t data = 'T';
+            ret = requestAwait(1, TM_CLEAR_TIME, 46, TM_MSG_CUSTOM, &data, 1);
+        }
         else if (digitalRead(BTN2))
-            ret = requestAwaitAnswer(1, TM_TIME_TO_STALE, 46, TM_MSG_CUSTOM, BTN2_PORT, nullptr, 0);
-        else if (digitalRead(BTN3))
-            ret = requestAwaitAnswer(1, TM_TIME_TO_STALE, 46, TM_MSG_CUSTOM, BTN3_PORT, nullptr, 0);
-        
+            ret = requestAwait(1, TM_CLEAR_TIME, 46, TM_MSG_CUSTOM, nullptr, 0);
+        else if (digitalRead(BTN3)) {
+            uint8_t data[] = {'N', 'D', 'B', 3, 7, 'T', 21,35, 'H', 36, 83};
+            ret = requestAwait(1, TM_CLEAR_TIME, tm.getGatewayAddress(), TM_MSG_CUSTOM, data, 11);
+        }
+
         //blue on success, red on error
-        if (ret || packet.fields.msg_type != TM_MSG_OK)
+        if (ret || packet.fields.flags.fields.message_type != TM_MSG_OK)
             digitalWrite(LED_B, LOW);
         else
             digitalWrite(LED_R, LOW);
@@ -311,5 +288,7 @@ void loop() {
     if (!digitalRead(BTN1) && !digitalRead(BTN2) && !digitalRead(BTN3) && pressed)
         pressed = false;
 
-    tm.clearSavedPackets(millis());
+    tm.clearSentQueue();
+
+    //go back to sleep
 }
