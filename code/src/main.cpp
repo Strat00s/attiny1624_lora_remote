@@ -128,7 +128,7 @@ void handleIncomingAnswer() {
 uint8_t sendPacketOnInterface() {
     uint8_t ret = 0;
 
-    uint32_t packet_id = tm.createPacketID(&packet);
+    auto packet_id = tm.createPacketID(&packet);
     ret = lora_if.transmitData(packet.raw, TM_HEADER_LENGTH + packet.fields.data_length);
     if (ret) return ret;
     tm.savePacketID(packet_id);
@@ -263,13 +263,13 @@ void loop() {
         //send custom empty message on specified button port to address 46
         if (digitalRead(BTN1)) {
             uint8_t data = 'T';
-            ret = requestAwait(1, TM_CLEAR_TIME, 46, TM_MSG_CUSTOM, &data, 1);
+            ret = requestAwait(3, 1000, 46, TM_MSG_CUSTOM, &data, 1);
         }
         else if (digitalRead(BTN2))
-            ret = requestAwait(1, TM_CLEAR_TIME, 46, TM_MSG_CUSTOM, nullptr, 0);
+            ret = requestAwait(3, 1000, 46, TM_MSG_CUSTOM, nullptr, 0);
         else if (digitalRead(BTN3)) {
             uint8_t data[] = {'N', 'D', 'B', 3, 7, 'T', 21,35, 'H', 36, 83};
-            ret = requestAwait(1, TM_CLEAR_TIME, tm.getGatewayAddress(), TM_MSG_CUSTOM, data, 11);
+            ret = requestAwait(3, 1000, tm.getGatewayAddress(), TM_MSG_CUSTOM, data, 11);
         }
 
         //blue on success, red on error
