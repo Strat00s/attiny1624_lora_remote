@@ -280,6 +280,4 @@ void loop() {
         pressed = false;
 
     tm.clearSentQueue();
-
-    //go back to sleep
 }
